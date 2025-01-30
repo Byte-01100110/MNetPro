@@ -1,0 +1,24 @@
+[MCUNet-locations]
+root_folder = ".../mcu_network/Core" # folder which contains the MCUNet code
+
+["Unroll Locations"]
+replacementtable_all_loops = "replacement_tables/replacement_all_loops.csv"
+replacementtable_all_but_first_loop = "replacement_tables/replacement_all_but_first_loop.csv"
+array_replacement_table = "replacement_tables/array_replacements.csv"
+array_replacement_table_smlad = "replacement_tables/array_replacements_smlad.csv"
+line_removal_table = "replacement_tables/line_removal.csv" #entries in this csv will have the entire line removed as long as a substring of the line matches the entry
+
+source_file = ".../mat_mul_kernels_fpreq.c" # location of the file containing the loop to be unrolled
+backup_location = "./backups/"
+
+[unrolled_function]
+layer_call = "convolve_1x1_s8_fpreq" #name function is being called in genmodel.c
+final_function_name = "mat_mult_kernel3_input3_s8_s16_fpreq" #TODO make the python script check we are inside that function, and only look at the comments inside, so that we can have multiple functions unrolled in the same file
+layer = 0 # number of the layer of the kernel
+weight = 0 # number of the weights being used, written in genmodel.h as for example weight2[...]={...}
+loop_count = [8] # how many times each loop should be unrolled, outermost loop first
+
+[array_replacements]
+loop_identifiers = ["i"] # Multiple in case of nested loops, outermost loop first
+internal_iterator = "j" # Denotes the variable to be used when substituting values in array_replacement csvsn
+conditional_iterator = "n" # a variable to be used in the replacement tables, that can be manually modified

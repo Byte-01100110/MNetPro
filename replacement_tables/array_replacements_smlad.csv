@@ -1,0 +1,4 @@
+13,"ch_0_out_0 = __SMLAD(ksrc_31[{i}], b0, ch_0_out_0);","ch_0_out_0 += ksrc[{i}*2] * (q15_t)(b0 & 0xFFFF) + ksrc[{i}*2+1] * (q15_t)(b0 >> 16);"
+13,"ch_0_out_1 = __SMLAD(ksrc_31[{i}], b1, ch_0_out_1);","ch_0_out_1 += ksrc[{i}*2] * (q15_t)(b1 & 0xFFFF) + ksrc[{i}*2+1] * (q15_t)(b1 >> 16);"
+13,"ch_1_out_0 = __SMLAD(ksrc2_31[{i}], b0, ch_1_out_0);","ch_1_out_0 += ksrc2[{i}*2] * (q15_t)(b0 & 0xFFFF) + ksrc2[{i}*2+1] * (q15_t)(b0 >> 16);"
+13,"ch_1_out_1 = __SMLAD(ksrc2_31[{i}], b1, ch_1_out_1);","ch_1_out_1 += ksrc2[{i}*2] * (q15_t)(b1 & 0xFFFF) + ksrc2[{i}*2+1] * (q15_t)(b1 >> 16);"

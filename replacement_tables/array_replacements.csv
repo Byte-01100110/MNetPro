@@ -1,0 +1,4 @@
+13,"ksrc_31[{j}]","0x{numbers[27 * 2 * i + j*2 + 1]}{numbers[27 * 2 * i + j*2]}"
+13,"ksrc2_31[{j}]","0x{numbers[27 * 2 * i + 27 + j*2 + 1]}{numbers[27 * 2 * i + 27 + j*2]}"
+27,"ksrc[{j}]","(q15_t)0x{numbers[i*27*2 + j]}"
+27,"ksrc2[{j}]","(q15_t)0x{numbers[i*27*2 + 27 + j]}"
