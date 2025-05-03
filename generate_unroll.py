@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
 
     # Load the source code
-        source_code_path = config['Unroll Locations']['source_code']
+        source_code_path = config['Unroll Locations']['source_file']
         backup_location = config['Unroll Locations']['backup_location']
         # Extract the file name from the source code path
         # Create a local copy of the source code
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             source_code = file.read()
             # Extract the blocks of code
             start_block = re.search(r'//START(.*?)//START END', source_code, re.DOTALL).group(1)
-            loop_block = re.search(r'//LOOP(.*?)//LOOP END', source_code, re.DOTALL).group(1)
+            loop_block = re.search(r'//LOOP START(.*?)//LOOP END', source_code, re.DOTALL).group(1)
             end_block = re.search(r'//END(.*)', source_code, re.DOTALL).group(1)
 
         # Load the replacement table from the specified location
@@ -58,12 +58,12 @@ if __name__ == "__main__":
         smlad_table = config["Unroll Locations"]["array_replacement_table_smlad"]
         loop_count = config['unrolled_function']['loop_count']
         header = config['MCUNet-locations']['header_file']
-        number = config['unrolled_function']['number']
+        layer = config['unrolled_function']['layer']
 
 
         # Open the header file and extract the weights
         with open(header, 'r') as header_file:
-            weights = r'weight{number}\[\d+\] = \{{.*?\}}'.format(number=number)
+            weights = r'weight{number}\[\d+\] = \{{.*?\}}'.format(number=layer)
 
             weights_line = re.search(weights, header_file.read())
             if weights_line:
@@ -82,7 +82,6 @@ if __name__ == "__main__":
         # Open the SMLAD replacement table CSV
         with open(smlad_table, 'r') as file:
             smlad_table = list(csv.reader(file))
-            print(smlad_table)
 
         # Open the all but first loop replacement CSV
         with open(all_but_first_loop_replacement, 'r') as file:
@@ -102,44 +101,46 @@ if __name__ == "__main__":
                     loop_block = loop_block.replace(row[1].format(i=i), row[2].format(i=i)) #TODO: this does not recognize {i + 8} as a valid format
 
 
-
+        hex_numbers_formatted = [f"{num & 0xFFFF:04X}" for num in sign_extended_16_bit_numbers]
 
         if unroll_loops:
             for i in range (loop_count):
                 modified_loop = loop_block
                 if i != 0:
                     for row in all_but_first_loop_replacement_table:
-                        modified_loop = modified_loop.replace(row[0], row[1])
+                        modified_loop = re.sub(row[0], row[1], modified_loop)
                 for row in replacement_table:
                     modified_loop = modified_loop.replace(row[0], row[1])
 
                 if replace_array:
                     for row in array_replacement_table:
                         for j in range(int(row[0])):
-                            modified_loop = modified_loop.replace(row[1].format(j=j), row[2])
-                            matches = re.findall(r'\{numbers\[.+\]\}', modified_loop)
-                            for match in matches:
-                                index = int(re.search(r'\d+', match).group())
-                                match_replaced = match.replace("i", str(i)).replace("j", str(j))
-                                to_be_evals = [m[m.find('[')+1:m.find(']')] for m in re.findall(r'\{numbers\[.+?\]\}', match_replaced)]
-                                evals = [eval(e) for e in to_be_evals]
-                                for  i, eval_value in enumerate(evals):
-                                    match_replaced = match_replaced.replace(to_be_evals[i], str(eval_value))
-                                modified_loop = modified_loop.replace(match, match_replaced)
 
-                            hex_numbers_formatted = [f"{num & 0xFFFF:04X}" for num in sign_extended_16_bit_numbers]
-                            modified_loop = modified_loop.format(numbers=hex_numbers_formatted)
+                            matches = re.findall(r'\{numbers\[.+?\]\}', row[2]) #finds all occurences of {numbers[i]} in the replacement string
+                            new_val = row[2]
+
+                            for match in matches:
+                                to_be_evals = re.findall(r'\[(.*?)\]', match)[0]
+                                evals = eval(to_be_evals)
+                                new_val = new_val.replace(to_be_evals, str(evals))
+
+                            modified_loop = modified_loop.replace(row[1].format(j=j), new_val)
+
+
+
+
+                    modified_loop = modified_loop.format(numbers=hex_numbers_formatted)
 
                 final_code += modified_loop
         else:
             final_code += loop_block
 
 
-
         final_code += end_block
-        output_path = "./output.c" #TODO: This is supposed to be the original file in the project
+        output_path = source_code_path #TODO: This is supposed to be the original file in the project
         with open(output_path, 'w') as output_file:
             output_file.write(final_code)
+        print("done!")
 
 
 

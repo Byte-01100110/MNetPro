@@ -12,11 +12,17 @@ source_file = ".../mat_mul_kernels_fpreq.c" # location of the file containing th
 backup_location = "./backups/"
 
 [unrolled_function]
+<<<<<<< HEAD
 layer_call = "convolve_1x1_s8_fpreq" #name function is being called in genmodel.c
 final_function_name = "mat_mult_kernel3_input3_s8_s16_fpreq" #TODO make the python script check we are inside that function, and only look at the comments inside, so that we can have multiple functions unrolled in the same file
 layer = 0 # number of the layer of the kernel
 weight = 0 # number of the weights being used, written in genmodel.h as for example weight2[...]={...}
 loop_count = [8] # how many times each loop should be unrolled, outermost loop first
+=======
+name = "namae" #TODO make the python script check we are inside that function, and only look at the comments inside, so that we can have multiple functions unrolled in the same file
+layer = 0 # number of the layer of the kernel
+loop_count = 8
+>>>>>>> 7437104 (the system is almost correct now)
 
 [array_replacements]
 loop_identifiers = ["i"] # Multiple in case of nested loops, outermost loop first
